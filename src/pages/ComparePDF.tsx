@@ -48,6 +48,7 @@ const ComparePDF = () => {
           maxSize={20}
           className="mb-6"
           maxFiles={2}
+          acceptedFileTypes={[".pdf"]}
         />
         
         {files.length === 2 && (

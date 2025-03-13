@@ -10,6 +10,8 @@ interface PDFDropzoneProps {
   multiple?: boolean;
   maxSize?: number; // in MB
   className?: string;
+  maxFiles?: number; // maximum number of files allowed
+  acceptedFileTypes?: string[]; // array of accepted file types
 }
 
 const PDFDropzone: React.FC<PDFDropzoneProps> = ({
@@ -17,6 +19,8 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
   multiple = false,
   maxSize = 10, // Default 10MB
   className,
+  maxFiles,
+  acceptedFileTypes = [".pdf"],
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -36,10 +40,15 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
   
   const validateFile = useCallback((file: File): boolean => {
     // Check file type
-    if (!file.type.includes('pdf')) {
+    const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+    const isValidType = acceptedFileTypes.some(type => 
+      type === '*' || file.type.includes(type.replace('.', '')) || fileExtension === type
+    );
+    
+    if (!isValidType) {
       toast({
         title: "Invalid file type",
-        description: "Only PDF files are allowed",
+        description: `Only ${acceptedFileTypes.join(', ')} files are allowed`,
         variant: "destructive",
       });
       return false;
@@ -56,7 +65,7 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
     }
     
     return true;
-  }, [maxSize, toast]);
+  }, [maxSize, toast, acceptedFileTypes]);
   
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -67,11 +76,23 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
     const validFiles = files.filter(validateFile);
     
     if (validFiles.length) {
-      const newFiles = multiple ? [...selectedFiles, ...validFiles] : validFiles;
-      setSelectedFiles(newFiles);
-      onFileSelect(newFiles);
+      if (maxFiles && selectedFiles.length + validFiles.length > maxFiles) {
+        toast({
+          title: "Too many files",
+          description: `Maximum ${maxFiles} files are allowed`,
+          variant: "destructive",
+        });
+        const limitedFiles = validFiles.slice(0, maxFiles - selectedFiles.length);
+        const newFiles = multiple ? [...selectedFiles, ...limitedFiles] : limitedFiles;
+        setSelectedFiles(newFiles);
+        onFileSelect(newFiles);
+      } else {
+        const newFiles = multiple ? [...selectedFiles, ...validFiles] : validFiles;
+        setSelectedFiles(newFiles);
+        onFileSelect(newFiles);
+      }
     }
-  }, [multiple, onFileSelect, selectedFiles, validateFile]);
+  }, [multiple, onFileSelect, selectedFiles, validateFile, maxFiles, toast]);
   
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
@@ -80,14 +101,26 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
     const validFiles = files.filter(validateFile);
     
     if (validFiles.length) {
-      const newFiles = multiple ? [...selectedFiles, ...validFiles] : validFiles;
-      setSelectedFiles(newFiles);
-      onFileSelect(newFiles);
+      if (maxFiles && selectedFiles.length + validFiles.length > maxFiles) {
+        toast({
+          title: "Too many files",
+          description: `Maximum ${maxFiles} files are allowed`,
+          variant: "destructive",
+        });
+        const limitedFiles = validFiles.slice(0, maxFiles - selectedFiles.length);
+        const newFiles = multiple ? [...selectedFiles, ...limitedFiles] : limitedFiles;
+        setSelectedFiles(newFiles);
+        onFileSelect(newFiles);
+      } else {
+        const newFiles = multiple ? [...selectedFiles, ...validFiles] : validFiles;
+        setSelectedFiles(newFiles);
+        onFileSelect(newFiles);
+      }
     }
     
     // Reset the input value to allow selecting the same file again
     e.target.value = '';
-  }, [multiple, onFileSelect, selectedFiles, validateFile]);
+  }, [multiple, onFileSelect, selectedFiles, validateFile, maxFiles, toast]);
   
   const removeFile = useCallback((index: number) => {
     const newFiles = [...selectedFiles];
@@ -95,6 +128,8 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
     setSelectedFiles(newFiles);
     onFileSelect(newFiles);
   }, [onFileSelect, selectedFiles]);
+  
+  const acceptAttribute = acceptedFileTypes.join(',');
   
   return (
     <div className={cn("flex flex-col w-full", className)}>
@@ -111,7 +146,7 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
         <input
           id="fileInput"
           type="file"
-          accept=".pdf"
+          accept={acceptAttribute}
           multiple={multiple}
           onChange={handleFileSelect}
           className="hidden"
@@ -126,13 +161,15 @@ const PDFDropzone: React.FC<PDFDropzoneProps> = ({
         </div>
         
         <h3 className="text-lg font-semibold mb-2">
-          {isDragging ? "Drop your files here" : "Drag and drop your PDF files here"}
+          {isDragging ? "Drop your files here" : `Drag and drop your ${acceptedFileTypes.includes(".pdf") ? "PDF" : ""} files here`}
         </h3>
         <p className="text-muted-foreground text-center mb-4">
           or click to browse from your computer
         </p>
         <p className="text-sm text-muted-foreground">
-          Max file size: {maxSize}MB {multiple && "• Multiple files allowed"}
+          Max file size: {maxSize}MB 
+          {multiple && " • Multiple files allowed"}
+          {maxFiles && ` • Max ${maxFiles} files`}
         </p>
       </div>
       
