@@ -2,7 +2,7 @@
 import React from "react";
 import ToolCard from "./ToolCard";
 import { 
-  FileArrowUpDown, 
+  FilesIcon, 
   Scissors, 
   FileDown, 
   FileSearch, 
@@ -13,7 +13,7 @@ import {
 const FeaturedTools = () => {
   const tools = [
     {
-      icon: <FileArrowUpDown className="w-full h-full" />,
+      icon: <FilesIcon className="w-full h-full" />,
       title: "Merge PDF",
       description: "Combine multiple PDFs into a single document",
       color: "tool-pdf-merge",
