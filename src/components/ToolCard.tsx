@@ -23,30 +23,27 @@ const ToolCard: React.FC<ToolCardProps> = ({
     <Link
       to={href}
       className={cn(
-        "tool-card relative group flex flex-col items-center text-center p-6 md:p-8 rounded-xl bg-white border border-border transition-all duration-300 card-shadow hover:shadow-lg",
+        "tool-card relative group flex flex-col items-center text-center p-5 md:p-6 rounded-xl bg-white border border-border transition-all duration-300 card-shadow hover:shadow-lg",
         "hover:translate-y-[-4px]"
       )}
     >
       <div
         className={cn(
-          "tool-icon w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-xl mb-6",
+          "tool-icon w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-xl mb-4",
           `bg-${color}/10`
         )}
       >
-        <div className="w-8 h-8 md:w-10 md:h-10 text-[#${color}]">
+        <div className={`w-7 h-7 md:w-8 md:h-8 text-${color}`}>
           {iconSvg}
         </div>
       </div>
-      <h3 className="text-lg md:text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm md:text-base mb-4">
+      <h3 className="text-base md:text-lg font-semibold mb-2">{title}</h3>
+      <p className="text-muted-foreground text-xs md:text-sm mb-3 line-clamp-2">
         {description}
       </p>
-      <div className="flex items-center text-primary font-medium mt-auto">
+      <div className="flex items-center text-primary text-sm font-medium mt-auto">
         <span>Use tool</span>
-        <ArrowRight
-          className="tool-arrow ml-1 w-4 h-4"
-          style={{ color: `var(--${color})` }}
-        />
+        <ArrowRight className="tool-arrow ml-1 w-3 h-3 md:w-4 md:h-4" />
       </div>
     </Link>
   );

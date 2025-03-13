@@ -73,6 +73,10 @@ export default {
 					'pdf-convert': '#00C483',
 					'pdf-edit': '#FF9557',
 					'pdf-sign': '#9B57FF',
+					'pdf-protect': '#4A66E0',
+					'pdf-repair': '#FF7A00',
+					'pdf-organize': '#2D9CDB',
+					'pdf-ocr': '#8E44AD'
 				}
 			},
 			borderRadius: {

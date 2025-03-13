@@ -33,7 +33,7 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({
             </Button>
           </Link>
           
-          <div className="flex items-center mb-6">
+          <div className="flex items-center mb-8">
             <div className={`w-12 h-12 rounded-lg mr-4 flex items-center justify-center ${colorClass}`}>
               {icon}
             </div>
@@ -43,7 +43,21 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({
             </div>
           </div>
           
-          {children}
+          <div className="bg-white rounded-xl border border-border p-6 md:p-8 shadow-sm">
+            {children}
+          </div>
+          
+          <div className="mt-12 bg-slate-50 rounded-xl p-6 border border-border">
+            <h2 className="text-xl font-semibold mb-4">About {title}</h2>
+            <div className="text-muted-foreground">
+              <p className="mb-3">
+                This online {title.toLowerCase()} tool is completely free and easy to use. No registration or installation required.
+              </p>
+              <p>
+                Your files are secure and only processed in your browser. They are never uploaded to our server, ensuring complete privacy and security.
+              </p>
+            </div>
+          </div>
         </div>
       </main>
       <Footer />
