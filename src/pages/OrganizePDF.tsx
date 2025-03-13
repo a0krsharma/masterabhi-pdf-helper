@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import ToolLayout from "@/components/ToolLayout";
 import PDFDropzone from "@/components/PDFDropzone";
-import { FolderSort } from "lucide-react";
+import { FolderKanban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -35,7 +35,7 @@ const OrganizePDF = () => {
     <ToolLayout
       title="Organize PDF"
       description="Sort pages of your PDF file however you like"
-      icon={<FolderSort className="w-6 h-6 text-white" />}
+      icon={<FolderKanban className="w-6 h-6 text-white" />}
       colorClass="bg-tool-pdf-edit"
     >
       <div className="max-w-3xl mx-auto">

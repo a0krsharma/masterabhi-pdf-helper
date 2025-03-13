@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import ToolLayout from "@/components/ToolLayout";
 import PDFDropzone from "@/components/PDFDropzone";
-import { FilePresentation } from "lucide-react";
+import { Presentation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -35,7 +35,7 @@ const PowerPointToPDF = () => {
     <ToolLayout
       title="PowerPoint to PDF"
       description="Make PPT and PPTX slideshows easy to view by converting them to PDF"
-      icon={<FilePresentation className="w-6 h-6 text-white" />}
+      icon={<Presentation className="w-6 h-6 text-white" />}
       colorClass="bg-tool-office-convert"
     >
       <div className="max-w-3xl mx-auto">
