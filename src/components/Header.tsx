@@ -59,6 +59,12 @@ const Header = () => {
           >
             About
           </Link>
+          <Link
+            to="/contact"
+            className="text-foreground/80 hover:text-primary transition-colors font-medium"
+          >
+            Contact
+          </Link>
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
@@ -112,6 +118,13 @@ const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               About
+            </Link>
+            <Link
+              to="/contact"
+              className="text-foreground/80 hover:text-primary transition-colors font-medium py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contact
             </Link>
             <div className="flex flex-col space-y-2 pt-2">
               <Button variant="outline" className="w-full">

@@ -35,6 +35,13 @@ import ScanToPDF from "./pages/ScanToPDF";
 import OCRPDF from "./pages/OCRPDF";
 import ComparePDF from "./pages/ComparePDF";
 
+// New pages for website sections
+import About from "./pages/About";
+import Pricing from "./pages/Pricing";
+import Contact from "./pages/Contact";
+import Tools from "./pages/Tools";
+import IndianExamDocs from "./pages/IndianExamDocs";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -73,6 +80,13 @@ const App = () => (
           <Route path="/scan-to-pdf" element={<ScanToPDF />} />
           <Route path="/ocr-pdf" element={<OCRPDF />} />
           <Route path="/compare-pdf" element={<ComparePDF />} />
+          
+          {/* Website section routes */}
+          <Route path="/about" element={<About />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/indian-exam-docs" element={<IndianExamDocs />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
