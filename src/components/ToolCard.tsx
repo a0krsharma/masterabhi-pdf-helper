@@ -2,6 +2,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ToolCardProps {
   iconSvg: React.ReactNode;
@@ -19,8 +20,8 @@ const ToolCard: React.FC<ToolCardProps> = ({
   href,
 }) => {
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className={cn(
         "tool-card relative group flex flex-col items-center text-center p-6 md:p-8 rounded-xl bg-white border border-border transition-all duration-300 card-shadow hover:shadow-lg",
         "hover:translate-y-[-4px]"
@@ -47,7 +48,7 @@ const ToolCard: React.FC<ToolCardProps> = ({
           style={{ color: `var(--${color})` }}
         />
       </div>
-    </a>
+    </Link>
   );
 };
 
