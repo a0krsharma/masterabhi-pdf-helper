@@ -6,12 +6,14 @@ import { FilesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { mergePDFs } from "@/utils/pdfUtils";
 
 const MergePDF = () => {
   const [files, setFiles] = useState<File[]>([]);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { toast } = useToast();
   
-  const handleMergePDFs = () => {
+  const handleMergePDFs = async () => {
     if (files.length < 2) {
       toast({
         title: "Not enough files",
@@ -21,12 +23,24 @@ const MergePDF = () => {
       return;
     }
     
-    // In a real implementation, we would send the files to a server or use a PDF library
-    // For now, we'll just show a success message
-    toast({
-      title: "PDFs merged successfully",
-      description: "Your merged PDF is ready for download",
-    });
+    setIsProcessing(true);
+    
+    try {
+      const fileName = await mergePDFs(files);
+      
+      toast({
+        title: "PDFs merged successfully",
+        description: `Your merged PDF '${fileName}' has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error merging PDFs",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -52,8 +66,12 @@ const MergePDF = () => {
         
         {files.length >= 2 && (
           <div className="text-center">
-            <Button size="lg" onClick={handleMergePDFs}>
-              Merge {files.length} PDFs
+            <Button 
+              size="lg" 
+              onClick={handleMergePDFs}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Processing..." : `Merge ${files.length} PDFs`}
             </Button>
           </div>
         )}

@@ -22,7 +22,8 @@ import {
   ListOrdered,
   Scan,
   ScanText,
-  Diff
+  Diff,
+  Image
 } from "lucide-react";
 
 const FeaturedTools = () => {
@@ -201,6 +202,13 @@ const FeaturedTools = () => {
       description: "Compare two PDF documents side by side",
       color: "tool-pdf-edit",
       href: "/compare-pdf"
+    },
+    {
+      icon: <Image className="w-full h-full" />,
+      title: "Image Editor",
+      description: "Resize, compress and convert images easily",
+      color: "tool-image-convert",
+      href: "/image-editor"
     }
   ];
 

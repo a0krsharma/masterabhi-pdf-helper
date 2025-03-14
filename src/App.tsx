@@ -34,6 +34,7 @@ import PageNumbers from "./pages/PageNumbers";
 import ScanToPDF from "./pages/ScanToPDF";
 import OCRPDF from "./pages/OCRPDF";
 import ComparePDF from "./pages/ComparePDF";
+import ImageEditor from "./pages/ImageEditor";
 
 // New pages for website sections
 import About from "./pages/About";
@@ -80,6 +81,7 @@ const App = () => (
           <Route path="/scan-to-pdf" element={<ScanToPDF />} />
           <Route path="/ocr-pdf" element={<OCRPDF />} />
           <Route path="/compare-pdf" element={<ComparePDF />} />
+          <Route path="/image-editor" element={<ImageEditor />} />
           
           {/* Website section routes */}
           <Route path="/about" element={<About />} />

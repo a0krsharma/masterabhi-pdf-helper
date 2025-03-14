@@ -6,6 +6,7 @@ import { Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { splitPDF } from "@/utils/pdfUtils";
 import { 
   Accordion,
   AccordionContent,
@@ -16,13 +17,15 @@ import {
 const SplitPDF = () => {
   const [file, setFile] = useState<File | null>(null);
   const [splitMethod, setSplitMethod] = useState<"all" | "range" | "extract">("all");
+  const [pageRange, setPageRange] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { toast } = useToast();
   
   const handleFileSelect = (files: File[]) => {
     setFile(files[0] || null);
   };
   
-  const handleSplitPDF = () => {
+  const handleSplitPDF = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -32,12 +35,24 @@ const SplitPDF = () => {
       return;
     }
     
-    // In a real implementation, we would send the file to a server or use a PDF library
-    // For now, we'll just show a success message
-    toast({
-      title: "PDF split successfully",
-      description: "Your split PDF files are ready for download",
-    });
+    setIsProcessing(true);
+    
+    try {
+      const fileNames = await splitPDF(file, splitMethod, pageRange);
+      
+      toast({
+        title: "PDF split successfully",
+        description: `Your split PDF files (${fileNames.length}) are ready for download`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error splitting PDF",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -101,6 +116,8 @@ const SplitPDF = () => {
                         type="text" 
                         placeholder="e.g. 1-3,4-8,9-12" 
                         className="w-full p-2 border rounded"
+                        value={pageRange}
+                        onChange={(e) => setPageRange(e.target.value)}
                       />
                     </div>
                   </AccordionContent>
@@ -124,6 +141,8 @@ const SplitPDF = () => {
                         type="text" 
                         placeholder="e.g. 1,3,5,7-9" 
                         className="w-full p-2 border rounded"
+                        value={pageRange}
+                        onChange={(e) => setPageRange(e.target.value)}
                       />
                     </div>
                   </AccordionContent>
@@ -132,8 +151,12 @@ const SplitPDF = () => {
             </div>
             
             <div className="text-center">
-              <Button size="lg" onClick={handleSplitPDF}>
-                Split PDF
+              <Button 
+                size="lg" 
+                onClick={handleSplitPDF}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "Split PDF"}
               </Button>
             </div>
           </>

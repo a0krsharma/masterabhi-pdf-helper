@@ -6,6 +6,7 @@ import { FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { compressPDF } from "@/utils/pdfUtils";
 import {
   Select,
   SelectContent,
@@ -17,13 +18,14 @@ import {
 const CompressPDF = () => {
   const [file, setFile] = useState<File | null>(null);
   const [compressionLevel, setCompressionLevel] = useState("medium");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { toast } = useToast();
   
   const handleFileSelect = (files: File[]) => {
     setFile(files[0] || null);
   };
   
-  const handleCompressPDF = () => {
+  const handleCompressPDF = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -33,12 +35,24 @@ const CompressPDF = () => {
       return;
     }
     
-    // In a real implementation, we would send the file to a server or use a PDF library
-    // For now, we'll just show a success message
-    toast({
-      title: "PDF compressed successfully",
-      description: "Your compressed PDF is ready for download",
-    });
+    setIsProcessing(true);
+    
+    try {
+      const fileName = await compressPDF(file, compressionLevel);
+      
+      toast({
+        title: "PDF compressed successfully",
+        description: `Your compressed PDF '${fileName}' has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error compressing PDF",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -80,8 +94,12 @@ const CompressPDF = () => {
             </div>
             
             <div className="text-center">
-              <Button size="lg" onClick={handleCompressPDF}>
-                Compress PDF
+              <Button 
+                size="lg" 
+                onClick={handleCompressPDF}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Compressing..." : "Compress PDF"}
               </Button>
             </div>
           </>
