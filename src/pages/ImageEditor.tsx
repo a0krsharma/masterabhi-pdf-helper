@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from "react";
 import ToolLayout from "@/components/ToolLayout";
-import { Image, FileImage, Upload } from "lucide-react";
+import { Image as LucideImage, FileImage, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -43,7 +43,7 @@ const ImageEditor = () => {
       setPreview(url);
 
       // Get image dimensions
-      const img = new Image();
+      const img = document.createElement("img");
       img.onload = () => {
         setWidth(img.width);
         setHeight(img.height);
@@ -68,7 +68,7 @@ const ImageEditor = () => {
       }
 
       // Load the image onto the canvas
-      const img = new Image();
+      const img = document.createElement("img");
       img.src = preview || "";
       
       // Wait for the image to load
@@ -116,7 +116,7 @@ const ImageEditor = () => {
     try {
       // Create a canvas element to compress the image
       const canvas = document.createElement("canvas");
-      const img = new Image();
+      const img = document.createElement("img");
       img.src = preview || "";
       
       // Wait for the image to load
@@ -172,7 +172,7 @@ const ImageEditor = () => {
     try {
       // Create a canvas element to convert the image
       const canvas = document.createElement("canvas");
-      const img = new Image();
+      const img = document.createElement("img");
       img.src = preview || "";
       
       // Wait for the image to load
