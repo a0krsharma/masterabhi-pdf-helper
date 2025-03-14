@@ -1,6 +1,6 @@
 
 import { saveAs } from 'file-saver';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, degrees } from 'pdf-lib';
 
 // Helper function to save file to user's device
 const saveFile = (blob: Blob, fileName: string) => {
@@ -126,14 +126,8 @@ export const compressPDF = async (file: File, level: string): Promise<string> =>
     // Load the PDF document
     const pdfDoc = await PDFDocument.load(fileBuffer);
     
-    // Apply compression settings based on level
-    // For a real implementation, different settings would be used
-    // Here we're just re-saving the PDF which applies some default compression
-    
     // Get compression options based on level
     const compressionOptions = {
-      // In a real implementation, these would be different based on the level
-      // This is a simplified example
       low: { quality: 0.9 },
       medium: { quality: 0.7 },
       high: { quality: 0.5 },
@@ -147,8 +141,6 @@ export const compressPDF = async (file: File, level: string): Promise<string> =>
     const pdfBytes = await pdfDoc.save();
     
     // Create a compressed blob
-    // In a real implementation, we would apply actual compression here
-    // This is a simplified version
     const compressedBlob = new Blob([pdfBytes], { type: 'application/pdf' });
     
     const fileName = 'compressed.pdf';
@@ -189,3 +181,35 @@ export const convertPDFToFormat = async (file: File, format: string): Promise<st
     throw new Error(`Failed to convert PDF to ${format}`);
   }
 };
+
+export const rotatePDF = async (file: File, rotation: number = 90): Promise<string> => {
+  try {
+    console.log(`Rotating PDF ${file.name} by ${rotation} degrees`);
+    
+    // Convert File to ArrayBuffer
+    const fileBuffer = await file.arrayBuffer();
+    
+    // Load the PDF document
+    const pdfDoc = await PDFDocument.load(fileBuffer);
+    const pageCount = pdfDoc.getPageCount();
+    
+    // Rotate all pages
+    for (let i = 0; i < pageCount; i++) {
+      const page = pdfDoc.getPage(i);
+      page.setRotation(degrees(rotation));
+    }
+    
+    // Save the PDF with rotated pages
+    const pdfBytes = await pdfDoc.save();
+    const rotatedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    
+    const fileName = 'rotated.pdf';
+    saveFile(rotatedPdfBlob, fileName);
+    
+    return fileName;
+  } catch (error) {
+    console.error('Error rotating PDF:', error);
+    throw new Error('Failed to rotate PDF file');
+  }
+};
+

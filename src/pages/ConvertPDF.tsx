@@ -6,6 +6,7 @@ import { FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { convertPDFToFormat } from "@/utils/pdfUtils";
 import {
   Select,
   SelectContent,
@@ -17,13 +18,14 @@ import {
 const ConvertPDF = () => {
   const [file, setFile] = useState<File | null>(null);
   const [outputFormat, setOutputFormat] = useState("docx");
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   
   const handleFileSelect = (files: File[]) => {
     setFile(files[0] || null);
   };
   
-  const handleConvertPDF = () => {
+  const handleConvertPDF = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -33,12 +35,29 @@ const ConvertPDF = () => {
       return;
     }
     
-    // In a real implementation, we would send the file to a server or use a PDF library
-    // For now, we'll just show a success message
-    toast({
-      title: "PDF converted successfully",
-      description: `Your ${outputFormat.toUpperCase()} file is ready for download`,
-    });
+    setIsProcessing(true);
+    
+    try {
+      toast({
+        title: "Conversion started",
+        description: `Converting your PDF to ${outputFormat.toUpperCase()}...`,
+      });
+      
+      const fileName = await convertPDFToFormat(file, outputFormat);
+      
+      toast({
+        title: "PDF converted successfully",
+        description: `Your ${outputFormat.toUpperCase()} file "${fileName}" has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error converting PDF",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -82,8 +101,12 @@ const ConvertPDF = () => {
             </div>
             
             <div className="text-center">
-              <Button size="lg" onClick={handleConvertPDF}>
-                Convert PDF to {outputFormat.toUpperCase()}
+              <Button 
+                size="lg" 
+                onClick={handleConvertPDF}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Converting..." : `Convert PDF to ${outputFormat.toUpperCase()}`}
               </Button>
             </div>
           </>

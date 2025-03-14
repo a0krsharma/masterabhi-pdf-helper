@@ -6,16 +6,19 @@ import { FileWarning } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { PDFDocument } from "pdf-lib";
+import { saveAs } from "file-saver";
 
 const RepairPDF = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   
   const handleFileSelect = (files: File[]) => {
     setFile(files[0] || null);
   };
   
-  const handleRepair = () => {
+  const handleRepair = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -25,10 +28,45 @@ const RepairPDF = () => {
       return;
     }
     
-    toast({
-      title: "Repair started",
-      description: "Your repaired PDF will be ready for download shortly",
-    });
+    setIsProcessing(true);
+    
+    try {
+      toast({
+        title: "Repair started",
+        description: "Your repaired PDF will be ready for download shortly",
+      });
+      
+      // Read the file
+      const fileBuffer = await file.arrayBuffer();
+      
+      // Try to load and recreate the PDF (this can fix some corrupted PDFs)
+      const pdfDoc = await PDFDocument.load(fileBuffer, { 
+        ignoreEncryption: true,
+        updateMetadata: false
+      });
+      
+      // Save the repaired PDF
+      const pdfBytes = await pdfDoc.save();
+      const repairedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+      
+      // Download the repaired file
+      const fileName = 'repaired.pdf';
+      saveAs(repairedPdfBlob, fileName);
+      
+      toast({
+        title: "PDF repaired successfully",
+        description: `Your repaired PDF "${fileName}" has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error repairing PDF",
+        description: "The PDF could not be repaired. It may be too damaged or corrupted.",
+        variant: "destructive",
+      });
+      console.error("Error repairing PDF:", error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -54,8 +92,12 @@ const RepairPDF = () => {
         
         {file && (
           <div className="text-center">
-            <Button size="lg" onClick={handleRepair}>
-              Repair PDF
+            <Button 
+              size="lg" 
+              onClick={handleRepair}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Repairing..." : "Repair PDF"}
             </Button>
           </div>
         )}
