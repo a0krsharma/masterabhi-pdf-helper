@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from "react";
 import ToolLayout from "@/components/ToolLayout";
-import { Image as LucideImage, FileImage, Upload } from "lucide-react";
+import { FileImage, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { saveAs } from "file-saver";
+import { Progress } from "@/components/ui/progress";
 
 const ImageEditor = () => {
   const [image, setImage] = useState<File | null>(null);
@@ -20,6 +21,7 @@ const ImageEditor = () => {
   const [quality, setQuality] = useState<number>(80);
   const [outputFormat, setOutputFormat] = useState<string>("jpeg");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -53,9 +55,18 @@ const ImageEditor = () => {
   };
 
   const handleResize = async () => {
-    if (!image || !width || !height) return;
+    if (!image || !width || !height) {
+      toast({
+        title: "Missing information",
+        description: "Please upload an image and specify dimensions",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsProcessing(true);
+    setProgress(10);
+    
     try {
       // Create a canvas element to resize the image
       const canvas = document.createElement("canvas");
@@ -67,36 +78,51 @@ const ImageEditor = () => {
         throw new Error("Could not get canvas context");
       }
 
+      setProgress(30);
+      
       // Load the image onto the canvas
       const img = document.createElement("img");
       img.src = preview || "";
       
       // Wait for the image to load
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         img.onload = resolve;
+        img.onerror = reject;
       });
 
+      setProgress(60);
+      
       // Draw the image on the canvas
       ctx.drawImage(img, 0, 0, width, height);
 
+      setProgress(80);
+      
       // Convert canvas to blob
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            throw new Error("Failed to create blob from canvas");
-          }
-        }, `image/${outputFormat}`, quality / 100);
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to create blob from canvas"));
+            }
+          },
+          `image/${outputFormat}`,
+          quality / 100
+        );
       });
 
+      setProgress(90);
+      
       // Save the resized image
       const fileName = `resized.${outputFormat}`;
       saveAs(blob, fileName);
 
+      setProgress(100);
+      
       toast({
         title: "Image resized successfully",
-        description: `Your resized image '${fileName}' has been downloaded`,
+        description: `Your resized image has been downloaded`,
       });
     } catch (error) {
       toast({
@@ -106,13 +132,24 @@ const ImageEditor = () => {
       });
     } finally {
       setIsProcessing(false);
+      // Reset progress after a delay to show completion
+      setTimeout(() => setProgress(0), 1000);
     }
   };
 
   const handleCompress = async () => {
-    if (!image) return;
+    if (!image) {
+      toast({
+        title: "Missing image",
+        description: "Please upload an image first",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsProcessing(true);
+    setProgress(10);
+    
     try {
       // Create a canvas element to compress the image
       const canvas = document.createElement("canvas");
@@ -120,10 +157,13 @@ const ImageEditor = () => {
       img.src = preview || "";
       
       // Wait for the image to load
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         img.onload = resolve;
+        img.onerror = reject;
       });
 
+      setProgress(40);
+      
       canvas.width = img.width;
       canvas.height = img.height;
       const ctx = canvas.getContext("2d");
@@ -135,24 +175,34 @@ const ImageEditor = () => {
       // Draw the image on the canvas
       ctx.drawImage(img, 0, 0);
 
+      setProgress(70);
+      
       // Convert canvas to blob with compression
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            throw new Error("Failed to create blob from canvas");
-          }
-        }, `image/jpeg`, quality / 100);
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to create blob from canvas"));
+            }
+          },
+          `image/jpeg`,
+          quality / 100
+        );
       });
 
+      setProgress(90);
+      
       // Save the compressed image
       const fileName = `compressed.jpg`;
       saveAs(blob, fileName);
 
+      setProgress(100);
+      
       toast({
         title: "Image compressed successfully",
-        description: `Your compressed image '${fileName}' has been downloaded`,
+        description: `Your compressed image has been downloaded`,
       });
     } catch (error) {
       toast({
@@ -162,13 +212,24 @@ const ImageEditor = () => {
       });
     } finally {
       setIsProcessing(false);
+      // Reset progress after a delay to show completion
+      setTimeout(() => setProgress(0), 1000);
     }
   };
 
   const handleConvert = async () => {
-    if (!image) return;
+    if (!image) {
+      toast({
+        title: "Missing image",
+        description: "Please upload an image first",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsProcessing(true);
+    setProgress(10);
+    
     try {
       // Create a canvas element to convert the image
       const canvas = document.createElement("canvas");
@@ -176,10 +237,13 @@ const ImageEditor = () => {
       img.src = preview || "";
       
       // Wait for the image to load
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         img.onload = resolve;
+        img.onerror = reject;
       });
 
+      setProgress(40);
+      
       canvas.width = img.width;
       canvas.height = img.height;
       const ctx = canvas.getContext("2d");
@@ -191,24 +255,33 @@ const ImageEditor = () => {
       // Draw the image on the canvas
       ctx.drawImage(img, 0, 0);
 
+      setProgress(70);
+      
       // Convert canvas to blob
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            throw new Error("Failed to create blob from canvas");
-          }
-        }, `image/${outputFormat}`);
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to create blob from canvas"));
+            }
+          },
+          `image/${outputFormat}`
+        );
       });
 
+      setProgress(90);
+      
       // Save the converted image
       const fileName = `converted.${outputFormat}`;
       saveAs(blob, fileName);
 
+      setProgress(100);
+      
       toast({
         title: "Image converted successfully",
-        description: `Your converted image '${fileName}' has been downloaded`,
+        description: `Your converted image has been downloaded`,
       });
     } catch (error) {
       toast({
@@ -218,6 +291,8 @@ const ImageEditor = () => {
       });
     } finally {
       setIsProcessing(false);
+      // Reset progress after a delay to show completion
+      setTimeout(() => setProgress(0), 1000);
     }
   };
 
@@ -232,6 +307,7 @@ const ImageEditor = () => {
         <Alert className="mb-6">
           <AlertDescription>
             Upload an image to resize, compress, or convert it to a different format.
+            All processing happens locally in your browser - your images are never uploaded to any server.
           </AlertDescription>
         </Alert>
 
@@ -262,6 +338,13 @@ const ImageEditor = () => {
             <p className="mt-2 text-center text-sm text-gray-500">
               Original size: {width} x {height} pixels
             </p>
+          </div>
+        )}
+
+        {isProcessing && (
+          <div className="mb-6">
+            <p className="text-sm text-gray-600 mb-2">Processing image...</p>
+            <Progress value={progress} className="h-2" />
           </div>
         )}
 
