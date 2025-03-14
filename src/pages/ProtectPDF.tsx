@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { protectPDF } from "@/utils/pdfUtils";
 
 const ProtectPDF = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -15,13 +16,14 @@ const ProtectPDF = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [restrictEditing, setRestrictEditing] = useState(true);
   const [restrictPrinting, setRestrictPrinting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   
   const handleFileSelect = (files: File[]) => {
     setFile(files[0] || null);
   };
   
-  const handleProtect = () => {
+  const handleProtect = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -49,11 +51,32 @@ const ProtectPDF = () => {
       return;
     }
     
-    // In a real implementation, we would send the file to a server or use a PDF library
-    toast({
-      title: "PDF protected successfully",
-      description: "Your protected PDF is ready for download",
-    });
+    setIsProcessing(true);
+    
+    try {
+      toast({
+        title: "Protecting PDF",
+        description: "Your protected PDF will be ready for download shortly",
+      });
+      
+      const fileName = await protectPDF(file, password, {
+        restrictEditing,
+        restrictPrinting
+      });
+      
+      toast({
+        title: "PDF protected successfully",
+        description: `Your protected PDF "${fileName}" has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error protecting PDF",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -130,8 +153,12 @@ const ProtectPDF = () => {
             </div>
             
             <div className="text-center pt-4">
-              <Button size="lg" onClick={handleProtect}>
-                Protect PDF
+              <Button 
+                size="lg" 
+                onClick={handleProtect}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Protecting..." : "Protect PDF"}
               </Button>
             </div>
           </div>

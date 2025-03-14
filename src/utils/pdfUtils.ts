@@ -1,6 +1,6 @@
 
 import { saveAs } from 'file-saver';
-import { PDFDocument, degrees } from 'pdf-lib';
+import { PDFDocument, degrees, StandardFonts, rgb } from 'pdf-lib';
 
 // Helper function to save file to user's device
 const saveFile = (blob: Blob, fileName: string) => {
@@ -143,7 +143,7 @@ export const compressPDF = async (file: File, level: string): Promise<string> =>
     // Create a compressed blob
     const compressedBlob = new Blob([pdfBytes], { type: 'application/pdf' });
     
-    const fileName = 'compressed.pdf';
+    const fileName = `compressed_${file.name}`;
     saveFile(compressedBlob, fileName);
     
     return fileName;
@@ -157,25 +157,49 @@ export const convertPDFToFormat = async (file: File, format: string): Promise<st
   try {
     console.log(`Converting PDF ${file.name} to ${format}`);
     
-    // In a real implementation, this would convert PDF to other formats
-    // For demonstration purposes, we'll create a dummy file
+    // This is a mock implementation since browser-side PDF to other format conversion is limited
+    // In a real app, this would be handled by a server-side API
     
-    // Create blob with the corresponding format mimetype
-    const mimeTypes: {[key: string]: string} = {
-      jpg: 'image/jpeg',
-      png: 'image/png',
-      txt: 'text/plain',
-      html: 'text/html',
-    };
+    // For demonstration, we'll generate a placeholder file for download
+    const fileBuffer = await file.arrayBuffer();
     
-    const mimetype = mimeTypes[format.toLowerCase()] || 'application/octet-stream';
-    const content = `This is a sample conversion of PDF to ${format}.\nCreated for demonstration purposes.`;
-    const blob = new Blob([content], { type: mimetype });
+    // Process based on the target format
+    let blob: Blob;
+    let fileName: string;
     
-    const fileName = `converted.${format.toLowerCase()}`;
-    saveFile(blob, fileName);
+    switch(format.toLowerCase()) {
+      case 'docx':
+      case 'xlsx':
+      case 'pptx':
+        // Create a simple file with the requested extension
+        const content = `This is a conversion of ${file.name} to ${format} format. 
+In a production environment, this would be handled by a server-side API.`;
+        blob = new Blob([content], { type: 'application/octet-stream' });
+        fileName = file.name.replace('.pdf', `.${format}`);
+        break;
+        
+      case 'jpg':
+      case 'png':
+        // Load the PDF and create a placeholder image
+        await PDFDocument.load(fileBuffer);
+        // Placeholder image blob (would be actual conversion in production)
+        const imgContent = `Image conversion of ${file.name} would happen here in production.`;
+        blob = new Blob([imgContent], { type: `image/${format}` });
+        fileName = file.name.replace('.pdf', `.${format}`);
+        break;
+        
+      case 'txt':
+        // Create a text version of the PDF (simplified)
+        const textContent = `Text content extracted from ${file.name}.\nThis is a placeholder for real text extraction.`;
+        blob = new Blob([textContent], { type: 'text/plain' });
+        fileName = file.name.replace('.pdf', '.txt');
+        break;
+        
+      default:
+        throw new Error(`Conversion to ${format} is not supported`);
+    }
     
-    return fileName;
+    return saveFile(blob, fileName);
   } catch (error) {
     console.error(`Error converting PDF to ${format}:`, error);
     throw new Error(`Failed to convert PDF to ${format}`);
@@ -203,7 +227,7 @@ export const rotatePDF = async (file: File, rotation: number = 90): Promise<stri
     const pdfBytes = await pdfDoc.save();
     const rotatedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
     
-    const fileName = 'rotated.pdf';
+    const fileName = `rotated_${file.name}`;
     saveFile(rotatedPdfBlob, fileName);
     
     return fileName;
@@ -213,3 +237,164 @@ export const rotatePDF = async (file: File, rotation: number = 90): Promise<stri
   }
 };
 
+// New function to repair PDFs
+export const repairPDF = async (file: File): Promise<string> => {
+  try {
+    console.log(`Repairing PDF ${file.name}`);
+    
+    // Convert File to ArrayBuffer
+    const fileBuffer = await file.arrayBuffer();
+    
+    // Try to load and recreate the PDF (this can fix some corrupted PDFs)
+    const pdfDoc = await PDFDocument.load(fileBuffer, { 
+      ignoreEncryption: true,
+      updateMetadata: false
+    });
+    
+    // Save the repaired PDF
+    const pdfBytes = await pdfDoc.save();
+    const repairedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    
+    const fileName = `repaired_${file.name}`;
+    return saveFile(repairedPdfBlob, fileName);
+  } catch (error) {
+    console.error('Error repairing PDF:', error);
+    throw new Error('Failed to repair PDF file');
+  }
+};
+
+export const addPageNumbers = async (file: File, position: string = 'bottom-center'): Promise<string> => {
+  try {
+    console.log(`Adding page numbers to PDF ${file.name}`);
+    
+    // Convert File to ArrayBuffer
+    const fileBuffer = await file.arrayBuffer();
+    
+    // Load the PDF document
+    const pdfDoc = await PDFDocument.load(fileBuffer);
+    const pageCount = pdfDoc.getPageCount();
+    
+    // Add page numbers to each page
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    
+    for (let i = 0; i < pageCount; i++) {
+      const page = pdfDoc.getPage(i);
+      const { width, height } = page.getSize();
+      const pageText = `${i + 1} / ${pageCount}`;
+      const textWidth = font.widthOfTextAtSize(pageText, 12);
+      
+      let x = 0;
+      let y = 0;
+      
+      // Position the page number based on the specified position
+      switch (position) {
+        case 'bottom-center':
+          x = (width - textWidth) / 2;
+          y = 20;
+          break;
+        case 'bottom-right':
+          x = width - textWidth - 20;
+          y = 20;
+          break;
+        case 'bottom-left':
+          x = 20;
+          y = 20;
+          break;
+        case 'top-center':
+          x = (width - textWidth) / 2;
+          y = height - 20;
+          break;
+        case 'top-right':
+          x = width - textWidth - 20;
+          y = height - 20;
+          break;
+        case 'top-left':
+          x = 20;
+          y = height - 20;
+          break;
+        default:
+          x = (width - textWidth) / 2;
+          y = 20;
+      }
+      
+      // Draw the page number
+      page.drawText(pageText, {
+        x,
+        y,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+    }
+    
+    // Save the PDF with page numbers
+    const pdfBytes = await pdfDoc.save();
+    const numberedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    
+    const fileName = `numbered_${file.name}`;
+    return saveFile(numberedPdfBlob, fileName);
+  } catch (error) {
+    console.error('Error adding page numbers to PDF:', error);
+    throw new Error('Failed to add page numbers to PDF');
+  }
+};
+
+export const unlockPDF = async (file: File, password: string): Promise<string> => {
+  try {
+    console.log(`Unlocking PDF ${file.name}`);
+    
+    // Convert File to ArrayBuffer
+    const fileBuffer = await file.arrayBuffer();
+    
+    // Try to load the PDF with the provided password
+    const pdfDoc = await PDFDocument.load(fileBuffer, { 
+      password,
+    });
+    
+    // If we get here, the password was correct
+    // Save a copy without a password
+    const pdfBytes = await pdfDoc.save();
+    const unlockedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    
+    const fileName = `unlocked_${file.name}`;
+    return saveFile(unlockedPdfBlob, fileName);
+  } catch (error) {
+    console.error('Error unlocking PDF:', error);
+    throw new Error('Failed to unlock PDF. The password may be incorrect.');
+  }
+};
+
+export const protectPDF = async (file: File, password: string, options: { restrictEditing?: boolean, restrictPrinting?: boolean } = {}): Promise<string> => {
+  try {
+    console.log(`Protecting PDF ${file.name}`);
+    
+    // Convert File to ArrayBuffer
+    const fileBuffer = await file.arrayBuffer();
+    
+    // Load the PDF document
+    const pdfDoc = await PDFDocument.load(fileBuffer);
+    
+    // Encrypt the PDF with the provided password
+    const pdfBytes = await pdfDoc.save({
+      userPassword: password,
+      ownerPassword: password,
+      permissions: {
+        modifying: !options.restrictEditing,
+        printing: !options.restrictPrinting ? 'highResolution' : 'none',
+        copying: !options.restrictEditing,
+        annotating: !options.restrictEditing,
+        fillingForms: !options.restrictEditing,
+        contentAccessibility: true,
+        documentAssembly: !options.restrictEditing,
+      },
+    });
+    
+    const protectedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    
+    const fileName = `protected_${file.name}`;
+    return saveFile(protectedPdfBlob, fileName);
+  } catch (error) {
+    console.error('Error protecting PDF:', error);
+    throw new Error('Failed to protect PDF file');
+  }
+};

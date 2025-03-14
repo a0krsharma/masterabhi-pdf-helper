@@ -6,8 +6,7 @@ import { FileWarning } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { PDFDocument } from "pdf-lib";
-import { saveAs } from "file-saver";
+import { repairPDF } from "@/utils/pdfUtils";
 
 const RepairPDF = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -36,22 +35,7 @@ const RepairPDF = () => {
         description: "Your repaired PDF will be ready for download shortly",
       });
       
-      // Read the file
-      const fileBuffer = await file.arrayBuffer();
-      
-      // Try to load and recreate the PDF (this can fix some corrupted PDFs)
-      const pdfDoc = await PDFDocument.load(fileBuffer, { 
-        ignoreEncryption: true,
-        updateMetadata: false
-      });
-      
-      // Save the repaired PDF
-      const pdfBytes = await pdfDoc.save();
-      const repairedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-      
-      // Download the repaired file
-      const fileName = 'repaired.pdf';
-      saveAs(repairedPdfBlob, fileName);
+      const fileName = await repairPDF(file);
       
       toast({
         title: "PDF repaired successfully",
