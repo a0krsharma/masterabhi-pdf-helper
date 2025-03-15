@@ -1,4 +1,3 @@
-
 import { saveAs } from 'file-saver';
 import { PDFDocument, degrees, StandardFonts, rgb } from 'pdf-lib';
 
@@ -400,5 +399,89 @@ export const protectPDF = async (file: File, password: string, options: { restri
   } catch (error) {
     console.error('Error protecting PDF:', error);
     throw new Error('Failed to protect PDF file');
+  }
+};
+
+export const addWatermarkToPDF = async (
+  file: File, 
+  text: string, 
+  options: { 
+    opacity?: number, 
+    fontSize?: number, 
+    position?: 'center' | 'diagonal' | 'top' | 'bottom'
+  } = {}
+): Promise<string> => {
+  try {
+    console.log(`Adding watermark to PDF ${file.name}`);
+    
+    // Convert File to ArrayBuffer
+    const fileBuffer = await file.arrayBuffer();
+    
+    // Load the PDF document
+    const pdfDoc = await PDFDocument.load(fileBuffer);
+    const pageCount = pdfDoc.getPageCount();
+    
+    // Default options
+    const opacity = options.opacity || 0.3;
+    const fontSize = options.fontSize || 60;
+    const position = options.position || 'center';
+    
+    // Add watermark to each page
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    
+    for (let i = 0; i < pageCount; i++) {
+      const page = pdfDoc.getPage(i);
+      const { width, height } = page.getSize();
+      const textWidth = font.widthOfTextAtSize(text, fontSize);
+      
+      let x = 0;
+      let y = 0;
+      let rotation = 0;
+      
+      // Position the watermark based on the specified position
+      switch (position) {
+        case 'center':
+          x = (width - textWidth) / 2;
+          y = height / 2;
+          break;
+        case 'diagonal':
+          x = (width - textWidth) / 2;
+          y = height / 2;
+          rotation = -45;
+          break;
+        case 'top':
+          x = (width - textWidth) / 2;
+          y = height - 100;
+          break;
+        case 'bottom':
+          x = (width - textWidth) / 2;
+          y = 100;
+          break;
+        default:
+          x = (width - textWidth) / 2;
+          y = height / 2;
+      }
+      
+      // Draw the watermark text
+      page.drawText(text, {
+        x,
+        y,
+        size: fontSize,
+        font,
+        color: rgb(0, 0, 0),
+        opacity,
+        rotate: rotation ? degrees(rotation) : undefined,
+      });
+    }
+    
+    // Save the PDF with watermark
+    const pdfBytes = await pdfDoc.save();
+    const watermarkedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    
+    const fileName = `watermarked_${file.name}`;
+    return saveFile(watermarkedPdfBlob, fileName);
+  } catch (error) {
+    console.error('Error adding watermark to PDF:', error);
+    throw new Error('Failed to add watermark to PDF');
   }
 };
