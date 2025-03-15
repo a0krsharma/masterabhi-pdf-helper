@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import ToolLayout from "@/components/ToolLayout";
 import PDFDropzone from "@/components/PDFDropzone";
-import { FileText } from "lucide-react";
+import { FileText, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -38,8 +38,8 @@ const PDFToWord = () => {
       const fileName = await convertPDFToFormat(file, "docx");
       
       toast({
-        title: "PDF converted successfully",
-        description: `Your Word document "${fileName}" has been downloaded`,
+        title: "PDF conversion demonstration",
+        description: `A sample Word document "${fileName}" has been downloaded`,
       });
     } catch (error) {
       toast({
@@ -62,7 +62,19 @@ const PDFToWord = () => {
       <div className="max-w-3xl mx-auto">
         <Alert className="mb-6">
           <AlertDescription>
-            Select a PDF file to convert to Word format. The converted document will maintain the original formatting and be ready for editing in Microsoft Word or any other word processor.
+            <div className="flex items-start gap-2">
+              <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="mb-2">
+                  Select a PDF file to convert to Word format. The converted document will maintain the original formatting 
+                  and be ready for editing in Microsoft Word or any other word processor.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Demo notice:</strong> This is a demonstration version. In a production environment, 
+                  this conversion would be handled by a server-side API that produces high-quality Word documents.
+                </p>
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
         

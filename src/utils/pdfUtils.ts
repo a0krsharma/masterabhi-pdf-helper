@@ -156,25 +156,28 @@ export const convertPDFToFormat = async (file: File, format: string): Promise<st
   try {
     console.log(`Converting PDF ${file.name} to ${format}`);
     
-    // This is a mock implementation since browser-side PDF to other format conversion is limited
-    // In a real app, this would be handled by a server-side API
-    
-    // For demonstration, we'll generate a placeholder file for download
-    const fileBuffer = await file.arrayBuffer();
-    
-    // Process based on the target format
-    let blob: Blob;
+    // Create a blob URL to simulate file download while showing a proper message to users
+    let content: string;
+    let mimeType: string;
     let fileName: string;
     
     switch(format.toLowerCase()) {
       case 'docx':
+        content = `# PDF to Word Conversion Notice\n\nThe file "${file.name}" would be converted to DOCX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Microsoft Graph API\n\nThese services can accurately convert PDF content including text, images, tables, and formatting to editable Word documents.`;
+        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        fileName = file.name.replace('.pdf', '.docx');
+        break;
+        
       case 'xlsx':
+        content = `# PDF to Excel Conversion Notice\n\nThe file "${file.name}" would be converted to XLSX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Tabula\n\nThese services can accurately extract tabular data from PDFs and convert it to Excel spreadsheets.`;
+        mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        fileName = file.name.replace('.pdf', '.xlsx');
+        break;
+        
       case 'pptx':
-        // Create a simple file with the requested extension
-        const content = `This is a conversion of ${file.name} to ${format} format. 
-In a production environment, this would be handled by a server-side API.`;
-        blob = new Blob([content], { type: 'application/octet-stream' });
-        fileName = file.name.replace('.pdf', `.${format}`);
+        content = `# PDF to PowerPoint Conversion Notice\n\nThe file "${file.name}" would be converted to PPTX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Microsoft Graph API\n\nThese services can accurately convert PDF pages to PowerPoint slides with preserved formatting and media content.`;
+        mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+        fileName = file.name.replace('.pdf', '.pptx');
         break;
         
       case 'jpg':
@@ -183,14 +186,16 @@ In a production environment, this would be handled by a server-side API.`;
         await PDFDocument.load(fileBuffer);
         // Placeholder image blob (would be actual conversion in production)
         const imgContent = `Image conversion of ${file.name} would happen here in production.`;
-        blob = new Blob([imgContent], { type: `image/${format}` });
+        content = imgContent;
+        mimeType = `image/${format}`;
         fileName = file.name.replace('.pdf', `.${format}`);
         break;
         
       case 'txt':
         // Create a text version of the PDF (simplified)
         const textContent = `Text content extracted from ${file.name}.\nThis is a placeholder for real text extraction.`;
-        blob = new Blob([textContent], { type: 'text/plain' });
+        content = textContent;
+        mimeType = 'text/plain';
         fileName = file.name.replace('.pdf', '.txt');
         break;
         
@@ -198,6 +203,8 @@ In a production environment, this would be handled by a server-side API.`;
         throw new Error(`Conversion to ${format} is not supported`);
     }
     
+    // Create a more meaningful file to download
+    const blob = new Blob([content], { type: mimeType });
     return saveFile(blob, fileName);
   } catch (error) {
     console.error(`Error converting PDF to ${format}:`, error);
