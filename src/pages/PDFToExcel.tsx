@@ -6,16 +6,18 @@ import { FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { convertPDFToFormat } from "@/utils/pdfUtils";
 
 const PDFToExcel = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { toast } = useToast();
   
   const handleFileSelect = (files: File[]) => {
     setFile(files[0] || null);
   };
   
-  const handleConvert = () => {
+  const handleConvert = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -25,10 +27,29 @@ const PDFToExcel = () => {
       return;
     }
     
-    toast({
-      title: "Conversion started",
-      description: "Your Excel spreadsheet will be ready for download shortly",
-    });
+    setIsProcessing(true);
+    
+    try {
+      toast({
+        title: "Conversion started",
+        description: "Your Excel spreadsheet will be ready for download shortly",
+      });
+      
+      const fileName = await convertPDFToFormat(file, "xlsx");
+      
+      toast({
+        title: "PDF converted successfully",
+        description: `Your Excel spreadsheet "${fileName}" has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error converting PDF",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -54,8 +75,12 @@ const PDFToExcel = () => {
         
         {file && (
           <div className="text-center">
-            <Button size="lg" onClick={handleConvert}>
-              Convert to Excel
+            <Button 
+              size="lg" 
+              onClick={handleConvert}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Converting..." : "Convert to Excel"}
             </Button>
           </div>
         )}
