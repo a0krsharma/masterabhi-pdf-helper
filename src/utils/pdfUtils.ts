@@ -1,3 +1,4 @@
+
 import { saveAs } from 'file-saver';
 import { PDFDocument, degrees, StandardFonts, rgb } from 'pdf-lib';
 
@@ -347,10 +348,9 @@ export const unlockPDF = async (file: File, password: string): Promise<string> =
     const fileBuffer = await file.arrayBuffer();
     
     // Try to load the PDF with the provided password
-    // @ts-ignore - ignoring TypeScript error for password property
-    const pdfDoc = await PDFDocument.load(fileBuffer, { 
-      password,
-    });
+    // We need to use type assertion because TypeScript definitions don't match the actual JS API
+    const loadOptions = { password } as any;
+    const pdfDoc = await PDFDocument.load(fileBuffer, loadOptions);
     
     // If we get here, the password was correct
     // Save a copy without a password
@@ -376,8 +376,8 @@ export const protectPDF = async (file: File, password: string, options: { restri
     const pdfDoc = await PDFDocument.load(fileBuffer);
     
     // Encrypt the PDF with the provided password
-    // @ts-ignore - ignoring TypeScript error for userPassword and ownerPassword properties
-    const pdfBytes = await pdfDoc.save({
+    // We need to use type assertion because TypeScript definitions don't match the actual JS API
+    const saveOptions = {
       userPassword: password,
       ownerPassword: password,
       permissions: {
@@ -389,7 +389,9 @@ export const protectPDF = async (file: File, password: string, options: { restri
         contentAccessibility: true,
         documentAssembly: !options.restrictEditing,
       },
-    });
+    } as any;
+    
+    const pdfBytes = await pdfDoc.save(saveOptions);
     
     const protectedPdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
     
