@@ -38,8 +38,8 @@ const PDFToWord = () => {
       const fileName = await convertPDFToFormat(file, "docx");
       
       toast({
-        title: "PDF conversion demonstration",
-        description: `A sample Word document "${fileName}" has been downloaded`,
+        title: "PDF conversion completed",
+        description: `The demonstration file "${fileName}" has been downloaded`,
       });
     } catch (error) {
       toast({
@@ -60,7 +60,7 @@ const PDFToWord = () => {
       colorClass="bg-tool-pdf-convert"
     >
       <div className="max-w-3xl mx-auto">
-        <Alert className="mb-6">
+        <Alert className="mb-6 border-blue-200 bg-blue-50">
           <AlertDescription>
             <div className="flex items-start gap-2">
               <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -71,7 +71,8 @@ const PDFToWord = () => {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   <strong>Demo notice:</strong> This is a demonstration version. In a production environment, 
-                  this conversion would be handled by a server-side API that produces high-quality Word documents.
+                  this conversion would be handled by a server-side API (like Adobe PDF Services API, PDFTron, or Aspose) 
+                  that produces high-quality Word documents.
                 </p>
               </div>
             </div>
@@ -92,6 +93,7 @@ const PDFToWord = () => {
               size="lg" 
               onClick={handleConvert} 
               disabled={isProcessing}
+              className="bg-blue-600 hover:bg-blue-700"
             >
               {isProcessing ? "Converting..." : "Convert to Word"}
             </Button>

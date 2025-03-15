@@ -182,6 +182,8 @@ export const convertPDFToFormat = async (file: File, format: string): Promise<st
         
       case 'jpg':
       case 'png':
+        // Fixed error: fileBuffer was undefined, now we properly convert File to ArrayBuffer
+        const fileBuffer = await file.arrayBuffer();
         // Load the PDF and create a placeholder image
         await PDFDocument.load(fileBuffer);
         // Placeholder image blob (would be actual conversion in production)
