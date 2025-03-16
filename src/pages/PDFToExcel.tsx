@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import ToolLayout from "@/components/ToolLayout";
 import PDFDropzone from "@/components/PDFDropzone";
-import { FileSpreadsheet } from "lucide-react";
+import { FileSpreadsheet, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -60,9 +60,31 @@ const PDFToExcel = () => {
       colorClass="bg-tool-pdf-convert"
     >
       <div className="max-w-3xl mx-auto">
-        <Alert className="mb-6">
+        <Alert className="mb-6 border-blue-200 bg-blue-50">
           <AlertDescription>
-            Select a PDF file to extract tabular data into an Excel spreadsheet. Tables, charts, and numerical data will be converted to editable Excel format.
+            <div className="flex items-start gap-2">
+              <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="mb-2">
+                  Select a PDF file to extract tabular data into an Excel spreadsheet. Tables, charts, and numerical data will be converted to editable Excel format.
+                </p>
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong>Adobe PDF Services API:</strong> In a production environment, this tool would utilize the 
+                  Adobe PDF Services API which provides accurate extraction of tabular data from PDF documents 
+                  with intelligent recognition of table structures and data formatting.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Implementation details:</strong> This conversion would be implemented server-side using:
+                </p>
+                <ul className="text-sm text-muted-foreground list-disc pl-5 mb-2">
+                  <li>Adobe PDF Services API for intelligent table recognition</li>
+                  <li>Tabula for specialized data extraction from tables</li>
+                  <li>Aspose PDF for comprehensive structure analysis</li>
+                  <li>PDFTron for cell-by-cell data extraction</li>
+                  <li>Machine learning models for improving table detection accuracy</li>
+                </ul>
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
         
@@ -71,6 +93,7 @@ const PDFToExcel = () => {
           multiple={false}
           maxSize={20}
           className="mb-6"
+          acceptedFileTypes={[".pdf"]}
         />
         
         {file && (
@@ -79,6 +102,7 @@ const PDFToExcel = () => {
               size="lg" 
               onClick={handleConvert}
               disabled={isProcessing}
+              className="bg-blue-600 hover:bg-blue-700"
             >
               {isProcessing ? "Converting..." : "Convert to Excel"}
             </Button>

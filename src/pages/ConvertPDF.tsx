@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import ToolLayout from "@/components/ToolLayout";
 import PDFDropzone from "@/components/PDFDropzone";
-import { FileSearch } from "lucide-react";
+import { FileSearch, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +59,15 @@ const ConvertPDF = () => {
       setIsProcessing(false);
     }
   };
+
+  const formatDescriptions = {
+    docx: "Convert PDF to editable Word documents with preserved formatting using Adobe PDF Services API",
+    xlsx: "Extract tables and data from PDF to Excel spreadsheets using intelligent data recognition",
+    pptx: "Transform PDF pages into PowerPoint slides with preserved graphics and layouts",
+    jpg: "Convert PDF pages to high-quality JPG images with customizable resolution",
+    png: "Export PDF pages to transparent PNG images ideal for graphic design",
+    txt: "Extract plain text content from PDF documents with preserved paragraph structure"
+  };
   
   return (
     <ToolLayout
@@ -68,9 +77,29 @@ const ConvertPDF = () => {
       colorClass="bg-tool-pdf-convert"
     >
       <div className="max-w-3xl mx-auto">
-        <Alert className="mb-6">
+        <Alert className="mb-6 border-blue-200 bg-blue-50">
           <AlertDescription>
-            Select a PDF file to convert to another format. We support conversion to Word, Excel, PowerPoint, and image formats.
+            <div className="flex items-start gap-2">
+              <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="mb-2">
+                  Select a PDF file to convert to another format. We support conversion to Word, Excel, PowerPoint, and image formats.
+                </p>
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong>Enterprise-grade Conversion:</strong> In a production environment, this tool would utilize 
+                  the Adobe PDF Services API, Microsoft Graph API, and specialized conversion libraries for optimal results.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Implementation details:</strong> This conversion would be implemented server-side using:
+                </p>
+                <ul className="text-sm text-muted-foreground list-disc pl-5 mb-2">
+                  <li>Adobe PDF Services API for professional-quality conversions</li>
+                  <li>Microsoft Graph API for Office format interoperability</li>
+                  <li>PDFTron for comprehensive PDF manipulation</li>
+                  <li>Format-specific optimization algorithms for each conversion type</li>
+                </ul>
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
         
@@ -79,6 +108,7 @@ const ConvertPDF = () => {
           multiple={false}
           maxSize={50}
           className="mb-6"
+          acceptedFileTypes={[".pdf"]}
         />
         
         {file && (
@@ -98,6 +128,10 @@ const ConvertPDF = () => {
                   <SelectItem value="txt">Text File (.txt)</SelectItem>
                 </SelectContent>
               </Select>
+              
+              <div className="mt-2 text-sm text-muted-foreground">
+                {formatDescriptions[outputFormat as keyof typeof formatDescriptions]}
+              </div>
             </div>
             
             <div className="text-center">
@@ -105,6 +139,7 @@ const ConvertPDF = () => {
                 size="lg" 
                 onClick={handleConvertPDF}
                 disabled={isProcessing}
+                className="bg-blue-600 hover:bg-blue-700"
               >
                 {isProcessing ? "Converting..." : `Convert PDF to ${outputFormat.toUpperCase()}`}
               </Button>

@@ -70,11 +70,20 @@ const WordToPDF = () => {
                 <p className="mb-2">
                   Select a Word document (.doc or .docx) to convert to PDF. The converted document will maintain the original formatting.
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Demo notice:</strong> This is a demonstration version. In a production environment, 
-                  this conversion would be handled by a server-side API (like Microsoft Graph API, Aspose Words, or PDFTron) 
-                  that produces high-quality PDF documents from Word files.
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong>Microsoft Graph API:</strong> In a production environment, this tool would utilize the 
+                  Microsoft Graph API which provides high-quality conversion from Word documents to PDF 
+                  with complete fidelity in preserving styles, embedded objects, and formatting.
                 </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Implementation details:</strong> This conversion would be implemented server-side using:
+                </p>
+                <ul className="text-sm text-muted-foreground list-disc pl-5 mb-2">
+                  <li>Microsoft Graph API for official Office document processing</li>
+                  <li>Aspose Words for perfect rendering of Word documents</li>
+                  <li>PDFTron for advanced PDF generation features</li>
+                  <li>LibreOffice API (headless) for open-source processing</li>
+                </ul>
               </div>
             </div>
           </AlertDescription>

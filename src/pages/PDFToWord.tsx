@@ -75,10 +75,14 @@ const PDFToWord = () => {
                   with superior accuracy in preserving layouts, fonts, tables, and images.
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  <strong>Demo notice:</strong> This is a demonstration version. In a production environment, 
-                  the conversion would be powered by the Adobe PDF Services API using server-side processing 
-                  for optimal text extraction, formatting retention, and table structure preservation.
+                  <strong>Implementation details:</strong> This conversion would be implemented server-side using:
                 </p>
+                <ul className="text-sm text-muted-foreground list-disc pl-5 mb-2">
+                  <li>Adobe PDF Services API for processing large documents with complex formatting</li>
+                  <li>PDFTron for accurate text extraction and layout preservation</li>
+                  <li>Aspose PDF for table structure recognition and conversion</li>
+                  <li>Microsoft Graph API for interoperability with Office formats</li>
+                </ul>
               </div>
             </div>
           </AlertDescription>

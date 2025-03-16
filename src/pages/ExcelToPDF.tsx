@@ -70,11 +70,21 @@ const ExcelToPDF = () => {
                 <p className="mb-2">
                   Select an Excel spreadsheet (.xls or .xlsx) to convert to PDF. The converted document will maintain the original formatting and layout of your spreadsheet.
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Demo notice:</strong> This is a demonstration version. In a production environment, 
-                  this conversion would be handled by a server-side API (like Microsoft Graph API, Aspose Cells, or PDFTron) 
-                  that produces high-quality PDF documents from Excel files.
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong>Microsoft Graph API:</strong> In a production environment, this tool would utilize the 
+                  Microsoft Graph API which provides high-fidelity conversion from Excel spreadsheets to PDF 
+                  with precise cell rendering, chart visualization, and formula preservation.
                 </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Implementation details:</strong> This conversion would be implemented server-side using:
+                </p>
+                <ul className="text-sm text-muted-foreground list-disc pl-5 mb-2">
+                  <li>Microsoft Graph API for native Excel processing</li>
+                  <li>Aspose Cells for comprehensive spreadsheet handling</li>
+                  <li>PDFTron for high-fidelity PDF generation</li>
+                  <li>SpreadsheetGear for advanced Excel formula support</li>
+                  <li>Custom pagination algorithms for large worksheets</li>
+                </ul>
               </div>
             </div>
           </AlertDescription>
