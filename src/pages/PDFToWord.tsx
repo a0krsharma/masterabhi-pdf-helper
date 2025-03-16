@@ -69,10 +69,15 @@ const PDFToWord = () => {
                   Select a PDF file to convert to Word format. The converted document will maintain the original formatting 
                   and be ready for editing in Microsoft Word or any other word processor.
                 </p>
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong>Adobe PDF Services API:</strong> In a production environment, this tool would utilize the 
+                  Adobe PDF Services API which provides high-quality conversion from PDF to Word documents 
+                  with superior accuracy in preserving layouts, fonts, tables, and images.
+                </p>
                 <p className="text-sm text-muted-foreground">
                   <strong>Demo notice:</strong> This is a demonstration version. In a production environment, 
-                  this conversion would be handled by a server-side API (like Adobe PDF Services API, PDFTron, or Aspose) 
-                  that produces high-quality Word documents.
+                  the conversion would be powered by the Adobe PDF Services API using server-side processing 
+                  for optimal text extraction, formatting retention, and table structure preservation.
                 </p>
               </div>
             </div>
