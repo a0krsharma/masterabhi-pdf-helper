@@ -2,20 +2,22 @@
 import React, { useState } from "react";
 import ToolLayout from "@/components/ToolLayout";
 import PDFDropzone from "@/components/PDFDropzone";
-import { FileText } from "lucide-react";
+import { FileText, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { convertPDFToFormat } from "@/utils/pdfUtils";
 
 const WordToPDF = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { toast } = useToast();
   
   const handleFileSelect = (files: File[]) => {
     setFile(files[0] || null);
   };
   
-  const handleConvert = () => {
+  const handleConvert = async () => {
     if (!file) {
       toast({
         title: "No file selected",
@@ -25,10 +27,31 @@ const WordToPDF = () => {
       return;
     }
     
-    toast({
-      title: "Conversion started",
-      description: "Your PDF document will be ready for download shortly",
-    });
+    setIsProcessing(true);
+    
+    try {
+      toast({
+        title: "Conversion started",
+        description: "Your PDF document will be ready for download shortly",
+      });
+      
+      // In a real implementation, this would use a different function specific to Office conversions
+      // For demo purposes, we'll reuse the existing function with a placeholder
+      const fileName = await convertPDFToFormat(file, "pdf");
+      
+      toast({
+        title: "Conversion completed",
+        description: `The demonstration file "${fileName}" has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error converting file",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   return (
@@ -39,9 +62,21 @@ const WordToPDF = () => {
       colorClass="bg-tool-office-convert"
     >
       <div className="max-w-3xl mx-auto">
-        <Alert className="mb-6">
+        <Alert className="mb-6 border-blue-200 bg-blue-50">
           <AlertDescription>
-            Select a Word document (.doc or .docx) to convert to PDF. The converted document will maintain the original formatting.
+            <div className="flex items-start gap-2">
+              <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="mb-2">
+                  Select a Word document (.doc or .docx) to convert to PDF. The converted document will maintain the original formatting.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Demo notice:</strong> This is a demonstration version. In a production environment, 
+                  this conversion would be handled by a server-side API (like Microsoft Graph API, Aspose Words, or PDFTron) 
+                  that produces high-quality PDF documents from Word files.
+                </p>
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
         
@@ -50,12 +85,18 @@ const WordToPDF = () => {
           multiple={false}
           maxSize={20}
           className="mb-6"
+          acceptedFileTypes={[".doc", ".docx"]}
         />
         
         {file && (
           <div className="text-center">
-            <Button size="lg" onClick={handleConvert}>
-              Convert to PDF
+            <Button 
+              size="lg" 
+              onClick={handleConvert}
+              disabled={isProcessing}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isProcessing ? "Converting..." : "Convert to PDF"}
             </Button>
           </div>
         )}

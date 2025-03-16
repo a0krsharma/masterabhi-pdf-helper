@@ -154,63 +154,84 @@ export const compressPDF = async (file: File, level: string): Promise<string> =>
 
 export const convertPDFToFormat = async (file: File, format: string): Promise<string> => {
   try {
-    console.log(`Converting PDF ${file.name} to ${format}`);
+    console.log(`Converting ${file.name} to ${format}`);
     
     // Create a blob URL to simulate file download while showing a proper message to users
     let content: string;
     let mimeType: string;
     let fileName: string;
     
-    switch(format.toLowerCase()) {
-      case 'docx':
-        content = `# PDF to Word Conversion Notice\n\nThe file "${file.name}" would be converted to DOCX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Microsoft Graph API\n\nThese services can accurately convert PDF content including text, images, tables, and formatting to editable Word documents.`;
-        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        fileName = file.name.replace('.pdf', '.docx');
-        break;
-        
-      case 'xlsx':
-        content = `# PDF to Excel Conversion Notice\n\nThe file "${file.name}" would be converted to XLSX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Tabula\n\nThese services can accurately extract tabular data from PDFs and convert it to Excel spreadsheets.`;
-        mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        fileName = file.name.replace('.pdf', '.xlsx');
-        break;
-        
-      case 'pptx':
-        content = `# PDF to PowerPoint Conversion Notice\n\nThe file "${file.name}" would be converted to PPTX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Microsoft Graph API\n\nThese services can accurately convert PDF pages to PowerPoint slides with preserved formatting and media content.`;
-        mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
-        fileName = file.name.replace('.pdf', '.pptx');
-        break;
-        
-      case 'jpg':
-      case 'png':
-        // Fixed error: fileBuffer was undefined, now we properly convert File to ArrayBuffer
-        const fileBuffer = await file.arrayBuffer();
-        // Load the PDF and create a placeholder image
-        await PDFDocument.load(fileBuffer);
-        // Placeholder image blob (would be actual conversion in production)
-        const imgContent = `Image conversion of ${file.name} would happen here in production.`;
-        content = imgContent;
-        mimeType = `image/${format}`;
-        fileName = file.name.replace('.pdf', `.${format}`);
-        break;
-        
-      case 'txt':
-        // Create a text version of the PDF (simplified)
-        const textContent = `Text content extracted from ${file.name}.\nThis is a placeholder for real text extraction.`;
-        content = textContent;
-        mimeType = 'text/plain';
-        fileName = file.name.replace('.pdf', '.txt');
-        break;
-        
-      default:
-        throw new Error(`Conversion to ${format} is not supported`);
+    // Check if converting from PDF to another format
+    if (file.name.toLowerCase().endsWith('.pdf')) {
+      switch(format.toLowerCase()) {
+        case 'docx':
+          content = `# PDF to Word Conversion Notice\n\nThe file "${file.name}" would be converted to DOCX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Microsoft Graph API\n\nThese services can accurately convert PDF content including text, images, tables, and formatting to editable Word documents.`;
+          mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          fileName = file.name.replace('.pdf', '.docx');
+          break;
+          
+        case 'xlsx':
+          content = `# PDF to Excel Conversion Notice\n\nThe file "${file.name}" would be converted to XLSX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Tabula\n\nThese services can accurately extract tabular data from PDFs and convert it to Excel spreadsheets.`;
+          mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          fileName = file.name.replace('.pdf', '.xlsx');
+          break;
+          
+        case 'pptx':
+          content = `# PDF to PowerPoint Conversion Notice\n\nThe file "${file.name}" would be converted to PPTX format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Adobe PDF Services API\n- Aspose PDF\n- PDFTron\n- Microsoft Graph API\n\nThese services can accurately convert PDF pages to PowerPoint slides with preserved formatting and media content.`;
+          mimeType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+          fileName = file.name.replace('.pdf', '.pptx');
+          break;
+          
+        case 'jpg':
+        case 'png':
+          // Convert File to ArrayBuffer
+          const fileBuffer = await file.arrayBuffer();
+          // Load the PDF and create a placeholder image
+          await PDFDocument.load(fileBuffer);
+          // Placeholder image blob (would be actual conversion in production)
+          const imgContent = `Image conversion of ${file.name} would happen here in production.`;
+          content = imgContent;
+          mimeType = `image/${format}`;
+          fileName = file.name.replace('.pdf', `.${format}`);
+          break;
+          
+        case 'txt':
+          // Create a text version of the PDF (simplified)
+          const textContent = `Text content extracted from ${file.name}.\nThis is a placeholder for real text extraction.`;
+          content = textContent;
+          mimeType = 'text/plain';
+          fileName = file.name.replace('.pdf', '.txt');
+          break;
+          
+        default:
+          throw new Error(`Conversion to ${format} is not supported`);
+      }
+    } 
+    // If converting from Office formats to PDF
+    else if (format.toLowerCase() === 'pdf') {
+      content = `# Office to PDF Conversion Notice\n\nThe file "${file.name}" would be converted to PDF format in a production environment.\n\nThis is a demonstration version. In a full implementation, this conversion would be performed by a server-side API using specialized libraries like:\n- Microsoft Graph API\n- Aspose Office\n- PDFTron\n- LibreOffice/OpenOffice APIs\n\nThese services can accurately convert Office documents to PDF with preserved formatting and layout.`;
+      mimeType = 'application/pdf';
+      
+      // Determine original file extension
+      if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
+        fileName = file.name.replace(/\.(docx|doc)$/i, '.pdf');
+      } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+        fileName = file.name.replace(/\.(xlsx|xls)$/i, '.pdf');
+      } else if (file.name.toLowerCase().endsWith('.pptx') || file.name.toLowerCase().endsWith('.ppt')) {
+        fileName = file.name.replace(/\.(pptx|ppt)$/i, '.pdf');
+      } else {
+        fileName = `${file.name}.pdf`;
+      }
+    } else {
+      throw new Error(`Conversion from ${file.type} to ${format} is not supported`);
     }
     
     // Create a more meaningful file to download
     const blob = new Blob([content], { type: mimeType });
     return saveFile(blob, fileName);
   } catch (error) {
-    console.error(`Error converting PDF to ${format}:`, error);
-    throw new Error(`Failed to convert PDF to ${format}`);
+    console.error(`Error converting file:`, error);
+    throw new Error(`Failed to convert the file`);
   }
 };
 
@@ -245,7 +266,6 @@ export const rotatePDF = async (file: File, rotation: number = 90): Promise<stri
   }
 };
 
-// New function to repair PDFs
 export const repairPDF = async (file: File): Promise<string> => {
   try {
     console.log(`Repairing PDF ${file.name}`);
